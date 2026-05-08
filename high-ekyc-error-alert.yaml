@@ -1,0 +1,39 @@
+groups:
+- name: ekyc-alerts
+
+  rules:
+  - alert: HighEkycErrorRate
+
+    expr: |
+      (
+        sum by (namespace)(
+          rate(http_requests_total{
+            app="mock-ekyc-api",
+            status=~"5.."
+          }[5m])
+        )
+        /
+        sum by (namespace)(
+          rate(http_requests_total{
+            app="mock-ekyc-api"
+          }[5m])
+        )
+      ) * 100 > 5
+
+    for: 2m
+
+    labels:
+      severity: critical
+      service: mock-ekyc-api
+
+    annotations:
+      summary: "High eKYC API error rate detected"
+
+      description: |
+        The Mock eKYC API in namespace {{ $labels.namespace }}
+        is returning more than 5% HTTP 5xx errors
+        for over 2 minutes.
+
+        Immediate investigation required.
+
+      runbook_url: "https://internal-wiki/runbooks/mock-ekyc-api"
