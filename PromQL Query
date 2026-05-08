@@ -1,0 +1,10 @@
+(
+  sum(rate(http_requests_total{
+    app="mock-ekyc-api",
+    status=~"5.."
+  }[5m]))
+/
+  sum(rate(http_requests_total{
+    app="mock-ekyc-api"
+  }[5m]))
+) * 100
